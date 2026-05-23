@@ -1,19 +1,19 @@
 import { Button } from "@/components/ui/button"
-
+import { MinutelyCharts } from "@/components/minutelyCharts"
+import { HourlyCharts } from "@/components/hourlyCharts"
+import { DailyCharts } from "@/components/dailyCharts"
 export default function Page() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
+    <>
+      <div className="w-[80%] min-h-[25vh] mx-auto grid grid-cols-2 grid-rows-2 gap-4 p-4">
+        <MinutelyCharts />
       </div>
-    </div>
+      <div className="w-[80%] min-h-[25vh] mx-auto grid grid-cols-2 grid-rows-2 gap-4 p-4">
+        <HourlyCharts />
+      </div>
+      <div className="w-[80%] min-h-[25vh] mx-auto grid grid-cols-2 grid-rows-2 gap-4 p-4">
+        <DailyCharts />
+      </div>
+    </>
   )
 }
