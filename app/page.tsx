@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 export default function Page() {
   const [tab, setTab] = React.useState("minutely")
   return (
-    <div className="w-[80%] mx-auto p-4">
+    <div className="w-[60%] mx-auto p-4">
       <Tabs value={tab} onValueChange={setTab} className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="minutely">Minutely</TabsTrigger>
@@ -28,7 +28,7 @@ export default function Page() {
           </div>
         </TabsContent>
         <TabsContent value="daily">
-          <div className="min-h-[25vh] grid grid-cols-2 grid-rows-2 gap-4">
+          <div className="min-h-[25vh] grid grid-cols-1 md:grid-cols-2 grid-rows-2 gap-4">
             <DailyCharts />
           </div>
         </TabsContent>
