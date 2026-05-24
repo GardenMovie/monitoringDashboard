@@ -84,7 +84,19 @@ export default function MultiLineChart({ chartData, title = "Metric Usage", desc
                   (dataMax: number) => Number((dataMax * 1.1).toFixed(2)),
                 ]}
               />
-              <ChartTooltip cursor={true} content={<ChartTooltipContent />} />
+              <ChartTooltip
+                cursor={true}
+                content={<ChartTooltipContent
+                  labelKey="ts"
+                  labelFormatter={(_, payload) => {
+                    let ts = payload && payload[0] && payload[0].payload && payload[0].payload.ts;
+                    ts = Number(ts);
+                    return !isNaN(ts) && ts > 0
+                      ? new Date(ts).toLocaleString()
+                      : String(ts);
+                  }}
+                />}
+              />
               <Line
                 dataKey="avg"
                 type="monotone"

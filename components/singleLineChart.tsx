@@ -66,7 +66,19 @@ export default function SingleLineChart({ chartData, title = "Metric Usage", des
                   (dataMax: number) => Number((dataMax * 1.1).toFixed(2)),
                 ]}
               />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+              <ChartTooltip
+                cursor={true}
+                content={<ChartTooltipContent
+                  labelKey="ts"
+                  labelFormatter={(_, payload) => {
+                    let ts = payload && payload[0] && payload[0].payload && payload[0].payload.ts;
+                    ts = Number(ts);
+                    return !isNaN(ts) && ts > 0
+                      ? new Date(ts).toLocaleString()
+                      : String(ts);
+                  }}
+                />}
+              />
               <Line
                 dataKey="value"
                 type="monotone"
