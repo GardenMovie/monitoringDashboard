@@ -30,10 +30,10 @@ export function MinutelyCharts() {
 
   return (
     <>
-      <div className="w-full h-full"><LineChartClient chartData={chartData.cpu} title="CPU Usage" color="oklch(76.8% 0.233 130.85)"/></div>
-      <div className="w-full h-full"><LineChartClient chartData={chartData.ram} title="RAM Usage" color="oklch(82.8% 0.189 84.429)"/></div>
-      <div className="w-full h-full"><LineChartClient chartData={chartData.ping} title="Ping" color="oklch(78.9% 0.154 211.53)"/></div>
-      <div className="w-full h-full"><LineChartClient chartData={chartData.disk} title="Disk Usage" color="oklch(76.8% 0.233 130.85)"/></div>
+      <div className="w-full h-full"><LineChartClient chartData={chartData.cpu} title="CPU Usage" color="var(--color-lime-500)"/></div>
+      <div className="w-full h-full"><LineChartClient chartData={chartData.ram} title="RAM Usage" color="var(--color-amber-500)"/></div>
+      <div className="w-full h-full"><LineChartClient chartData={chartData.ping} title="Ping" color="var(--color-cyan-500)"/></div>
+      <div className="w-full h-full"><LineChartClient chartData={chartData.disk} title="Disk Usage" color="var(--color-emerald-500)"/></div>
     </>
   )
 }

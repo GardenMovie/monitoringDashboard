@@ -3,7 +3,7 @@ import { getClient } from "@/lib/mongodb"
 
 export async function GET(request: Request) {
   const url = new URL(request.url)
-  const limit = parseInt(url.searchParams.get("limit") || "24", 10)
+  const limit = parseInt(url.searchParams.get("limit") || "30", 10)
   const client = await getClient()
   const db = client.db("Metrics")
   const coll = db.collection("hardwareDay")

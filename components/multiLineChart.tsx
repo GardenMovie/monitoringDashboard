@@ -23,7 +23,7 @@ type MetricPoint = {
 
 const chartConfig = {
   avg: {
-    label: "Avg",
+    label: "This",
     color: "var(--chart-1)",
   },
   min: {
@@ -84,7 +84,7 @@ export default function MultiLineChart({ chartData, title = "Metric Usage", desc
                   (dataMax: number) => Number((dataMax * 1.1).toFixed(2)),
                 ]}
               />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+              <ChartTooltip cursor={true} content={<ChartTooltipContent />} />
               <Line
                 dataKey="avg"
                 type="monotone"
