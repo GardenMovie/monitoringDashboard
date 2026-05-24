@@ -36,11 +36,12 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export default function MultiLineChart({ chartData, title = "Metric Usage", description = "Metric over time", colors = {} }: {
+export default function MultiLineChart({ chartData, title = "Metric Usage", description = "Metric over time", colors = {}, tickInterval = "hour" }: {
   chartData: MetricPoint[],
   title?: string,
   description?: string,
-  colors?: { avg?: string, min?: string, max?: string }
+  colors?: { avg?: string, min?: string, max?: string },
+  tickInterval?: "hour" | "day"
 }) {
   const data = (chartData ?? [])
     .map((d) => ({
@@ -52,6 +53,29 @@ export default function MultiLineChart({ chartData, title = "Metric Usage", desc
     .filter((d) => d.ts != null)
     .sort((a, b) => (a.ts as number) - (b.ts as number))
 
+  // Generate an array of ticks (hourly or daily) between dataMin and dataMax
+  let ticks: number[] = [];
+  if (data.length > 0) {
+    const min = data[0].ts as number;
+    const max = data[data.length - 1].ts as number;
+    const start = new Date(min);
+    if (tickInterval === "day") {
+      start.setHours(0, 0, 0, 0);
+      let t = start.getTime();
+      while (t <= max) {
+        ticks.push(t);
+        t += 24 * 60 * 60 * 1000; // add 1 day
+      }
+    } else {
+      start.setMinutes(0, 0, 0);
+      let t = start.getTime();
+      while (t <= max) {
+        ticks.push(t);
+        t += 60 * 60 * 1000; // add 1 hour
+      }
+    }
+  }
+
   // Check if min/max exist in any data point
   const hasMin = data.some(d => d.min !== undefined && d.min !== null)
   const hasMax = data.some(d => d.max !== undefined && d.max !== null)
@@ -62,19 +86,33 @@ export default function MultiLineChart({ chartData, title = "Metric Usage", desc
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart accessibilityLayer data={data} margin={{ left: 12, right: 12 }}>
+        <ChartContainer config={chartConfig}  className="aspect-3/1 md:aspect-5/1 w-full">
+            <LineChart accessibilityLayer data={data} margin={{ left: -20, right: 12 }}>
               <CartesianGrid vertical={false} strokeDasharray="3 3" />
               <XAxis
                 dataKey="ts"
                 type="number"
-                tickLine={false}
-                axisLine={false}
+                tickLine={true}
+                axisLine={true}
                 tickMargin={8}
                 domain={["dataMin", "dataMax"]}
-                tickFormatter={(t) => new Date(Number(t)).toLocaleTimeString()}
-                minTickGap={12}
+                ticks={ticks}
+                tickFormatter={(t) => {
+                  const date = new Date(Number(t));
+                  if (tickInterval === "day") {
+                    return date.toLocaleDateString([], {
+                      month: "short",
+                      day: "2-digit"
+                    });
+                  } else {
+                    return date.toLocaleTimeString([], {
+                      hour12: false,
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                  }
+                }}
+                minTickGap={0}
               />
               <YAxis
                 domain={[
@@ -99,9 +137,9 @@ export default function MultiLineChart({ chartData, title = "Metric Usage", desc
                 dataKey="avg"
                 type="monotone"
                 stroke={colors.avg || chartConfig.avg.color}
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4 }}
+                strokeWidth={1}
+                dot={true}
+                activeDot={{ r: 2 }}
                 name="Avg"
               />
               {hasMin && (
@@ -109,9 +147,9 @@ export default function MultiLineChart({ chartData, title = "Metric Usage", desc
                   dataKey="min"
                   type="monotone"
                   stroke={colors.min || chartConfig.min.color}
-                  strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 4 }}
+                  strokeWidth={1}
+                  dot={true}
+                  activeDot={{ r: 2 }}
                   name="Min"
                 />
               )}
@@ -120,14 +158,13 @@ export default function MultiLineChart({ chartData, title = "Metric Usage", desc
                   dataKey="max"
                   type="monotone"
                   stroke={colors.max || chartConfig.max.color}
-                  strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 4 }}
+                  strokeWidth={1}
+                  dot={true}
+                  activeDot={{ r: 2 }}
                   name="Max"
                 />
               )}
             </LineChart>
-          </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
     </Card>

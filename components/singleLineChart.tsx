@@ -37,6 +37,21 @@ export default function SingleLineChart({ chartData, title = "Metric Usage", des
     .sort((a, b) => (a.ts as number) - (b.ts as number))
   // Use provided color or fallback to config
   const lineColor = color || chartConfig.value.color
+
+  // Generate minute-by-minute ticks between dataMin and dataMax
+  let ticks: number[] = [];
+  if (data.length > 0) {
+    const min = data[0].ts as number;
+    const max = data[data.length - 1].ts as number;
+    const start = new Date(min);
+    start.setSeconds(0, 0);
+    let t = start.getTime();
+    while (t <= max) {
+      ticks.push(t);
+      t += 60 * 10 * 1000; // add 1 minute
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -53,8 +68,9 @@ export default function SingleLineChart({ chartData, title = "Metric Usage", des
                 axisLine={true}
                 tickMargin={8}
                 domain={["dataMin", "dataMax"]}
-                tickFormatter={(t) => new Date(Number(t)).toLocaleTimeString([], {hour12: false})}
-                minTickGap={12}
+                ticks={ticks}
+                tickFormatter={(t) => new Date(Number(t)).toLocaleTimeString([], {hour12: false, hour: "2-digit", minute: "2-digit"})}
+                minTickGap={0}
               />
               <YAxis
                 domain={[
@@ -79,9 +95,9 @@ export default function SingleLineChart({ chartData, title = "Metric Usage", des
                 dataKey="value"
                 type="monotone"
                 stroke={lineColor}
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4 }}
+                strokeWidth={1}
+                dot={true}
+                activeDot={{ r: 2 }}
               />
             </LineChart>
         </ChartContainer>
