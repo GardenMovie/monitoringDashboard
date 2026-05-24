@@ -1,6 +1,5 @@
 "use client"
 
-import { TrendingUp } from "lucide-react"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis, ResponsiveContainer } from "recharts"
 import {
   Card,
@@ -44,18 +43,17 @@ export default function SingleLineChart({ chartData, title = "Metric Usage", des
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart accessibilityLayer data={data} margin={{ left: 12, right: 12 }}>
-              <CartesianGrid vertical={false} strokeDasharray="3 3" />
+        <ChartContainer config={chartConfig} className="aspect-3/1 md:aspect-5/1 w-full">
+            <LineChart accessibilityLayer data={data} margin={{ left: -20, right: 12 }}>
+              <CartesianGrid vertical={true} strokeDasharray="3 3" />
               <XAxis
                 dataKey="ts"
                 type="number"
-                tickLine={false}
-                axisLine={false}
+                tickLine={true}
+                axisLine={true}
                 tickMargin={8}
                 domain={["dataMin", "dataMax"]}
-                tickFormatter={(t) => new Date(Number(t)).toLocaleTimeString()}
+                tickFormatter={(t) => new Date(Number(t)).toLocaleTimeString([], {hour12: false})}
                 minTickGap={12}
               />
               <YAxis
@@ -86,7 +84,6 @@ export default function SingleLineChart({ chartData, title = "Metric Usage", des
                 activeDot={{ r: 4 }}
               />
             </LineChart>
-          </ResponsiveContainer>
         </ChartContainer>
       </CardContent>
       <CardFooter>

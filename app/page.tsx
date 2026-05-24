@@ -18,7 +18,7 @@ export default function Page() {
           <TabsTrigger value="daily">Daily</TabsTrigger>
         </TabsList>
         <TabsContent value="minutely">
-          <div className="min-h-[25vh] grid grid-cols-1 md:grid-cols-2 grid-rows-2 gap-4">
+          <div className="min-h-[25vh] flex flex-col gap-4">
             <MinutelyCharts />
           </div>
         </TabsContent>

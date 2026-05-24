@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
-import LineChartClient from "./singleLineChart"
+import SingleLineChart from "./singleLineChart"
 
 export const description = "A multiple line chart"
 
@@ -30,10 +30,10 @@ export function MinutelyCharts() {
 
   return (
     <>
-      <div className="w-full h-full"><LineChartClient chartData={chartData.cpu} title="CPU Usage (%)" color="var(--color-lime-500)"/></div>
-      <div className="w-full h-full"><LineChartClient chartData={chartData.ram} title="RAM Usage (%)" color="var(--color-amber-500)"/></div>
-      <div className="w-full h-full"><LineChartClient chartData={chartData.disk} title="Disk Usage (%)" color="var(--color-emerald-500)"/></div>
-      <div className="w-full h-full"><LineChartClient chartData={chartData.ping} title="Ping (ms)" color="var(--color-cyan-500)"/></div>
+      <div className=""><SingleLineChart chartData={chartData.cpu} title="CPU Usage (%)" color="var(--color-lime-500)"/></div>
+      <div className=""><SingleLineChart chartData={chartData.ram} title="RAM Usage (%)" color="var(--color-amber-500)"/></div>
+      <div className=""><SingleLineChart chartData={chartData.disk} title="Disk Usage (%)" color="var(--color-emerald-500)"/></div>
+      <div className=""><SingleLineChart chartData={chartData.ping} title="Ping (ms)" color="var(--color-cyan-500)"/></div>
     </>
   )
 }
