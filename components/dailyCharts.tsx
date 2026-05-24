@@ -52,19 +52,19 @@ export function DailyCharts() {
     <>
       <div className="w-full h-full"><LineChartClient 
         chartData={chartData.cpu} 
-        title="CPU Usage" 
+        title="CPU Usage (%)" 
         colors={{ avg: "var(--color-lime-500)", min: "var(--color-lime-300)", max: "var(--color-lime-700)" }} /></div>
       <div 
         className="w-full h-full"><LineChartClient 
-        chartData={chartData.ram} title="RAM Usage" 
+        chartData={chartData.ram} title="RAM Usage (%)" 
         colors={{ avg: "var(--color-amber-500", min: "var(--color-amber-300", max: "var(--color-amber-700)" }} /></div>
       <div 
         className="w-full h-full"><LineChartClient 
-        chartData={chartData.disk} title="Disk Usage" 
+        chartData={chartData.disk} title="Disk Usage (%)" 
         colors={{ avg: "var(--color-emerald-500", min: "var(--color-emerald-300", max: "var(--color-emerald-700)" }} /></div>
       <div 
         className="w-full h-full"><LineChartClient 
-        chartData={chartData.ping} title="Ping"
+        chartData={chartData.ping} title="Ping (ms)"
         colors={{ avg: "var(--color-cyan-500", min: "var(--color-cyan-300", max: "var(--color-cyan-700)" }} /></div>
     </>
   )
