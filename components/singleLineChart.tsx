@@ -26,11 +26,10 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export default function SingleLineChart({ chartData, title = "Metric Usage", description = "Metric over time", valueFormatter = (v: number) => v, color }: {
+export default function SingleLineChart({ chartData, title = "Metric Usage", description = "Metric over time", color }: {
   chartData: Item[],
   title?: string,
   description?: string,
-  valueFormatter?: (v: number) => string | number,
   color?: string // Accepts Tailwind class or CSS color value
 }) {
   const data = (chartData ?? [])
@@ -60,10 +59,9 @@ export default function SingleLineChart({ chartData, title = "Metric Usage", des
                 minTickGap={12}
               />
               <YAxis
-                tickFormatter={valueFormatter}
                 domain={[
-                  (dataMin: number) => Number((dataMin * 0.9).toFixed(2)),
-                  (dataMax: number) => Number((dataMax * 1.1).toFixed(2)),
+                  0,
+                  (dataMax: number) => dataMax > 100 ? Number((dataMax * 1.2).toFixed(2)) : 100,
                 ]}
               />
               <ChartTooltip
