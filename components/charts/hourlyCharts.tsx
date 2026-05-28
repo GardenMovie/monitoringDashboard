@@ -1,6 +1,8 @@
 "use client"
+
 import { useEffect, useState } from "react"
 import MultiLineChart from "./multiLineChart"
+import TooMany429 from "@/components/shared/errors/tooMany429"
 
 export const description = "A multiple line chart for hourly data"
 
@@ -18,13 +20,22 @@ type HourlyData = {
 };
 
 export function HourlyCharts() {
+
   const [chartData, setChartData] = useState<HourlyData | null>(null)
+  const [rateLimitError, setRateLimitError] = useState(false)
 
   useEffect(() => {
     const fetchData = () => {
       fetch("/api/charts/hourly?limit=24")
         .then(res => res.json())
         .then((data) => {
+          if (data && typeof data === "object" && data.error === "Rate limit exceeded") {
+            setRateLimitError(true)
+            setChartData(null)
+            return
+          }
+          setRateLimitError(false)
+          if (!Array.isArray(data)) return
           // Transform the array of objects into arrays for each metric
           const metrics: HourlyData = {
             cpu: [],
@@ -45,6 +56,11 @@ export function HourlyCharts() {
     const interval = setInterval(fetchData, 60000 * 60)
     return () => clearInterval(interval)
   }, [])
+
+
+  if (rateLimitError) {
+    return <TooMany429 />
+  }
 
   if (!chartData) return <div>Loading...</div>
 

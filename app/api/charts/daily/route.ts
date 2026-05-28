@@ -2,6 +2,10 @@ import rateLimit from "next-rate-limit"
 import { NextRequest, NextResponse } from "next/server"
 import { getClient } from "@/lib/mongodb"
 
+
+// Centralized rate limit per user (requests per interval)
+const RATE_LIMIT_PER_USER = 10
+
 const limiter = rateLimit({
   interval: 60 * 1000, // 1 minute
   uniqueTokenPerInterval: 50 // Max 500 users per minute
@@ -9,8 +13,8 @@ const limiter = rateLimit({
 
 export async function GET(request: NextRequest) {
   try {
-    // Rate limit: 10 requests per minute per user
-    const headers = limiter.checkNext(request, 10)
+    // Rate limit: RATE_LIMIT_PER_USER requests per minute per user
+    const headers = limiter.checkNext(request, RATE_LIMIT_PER_USER)
 
     const url = new URL(request.url)
     const limit = Math.min(parseInt(url.searchParams.get("limit") || "30", 10), 100) // max 100
