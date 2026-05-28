@@ -1,38 +1,51 @@
-import { NextResponse } from "next/server"
+import rateLimit from "next-rate-limit"
+import { NextRequest, NextResponse } from "next/server"
 import { getClient } from "@/lib/mongodb"
 
-export async function GET(request: Request) {
-  const url = new URL(request.url)
-  const limit = parseInt(url.searchParams.get("limit") || "30", 10)
-  const client = await getClient()
-  const db = client.db("Metrics")
-  const coll = db.collection("hardwareDay")
-  const docs = await coll.find({"metadata.hostname": "heweyDeb"}).sort({ timestamp: -1 }).limit(limit).toArray()
+const limiter = rateLimit({
+  interval: 60 * 1000, // 1 minute
+  uniqueTokenPerInterval: 50 // Max 500 users per minute
+})
 
-  const result = docs.map((d: any) => {
-    const ts = d.timestamp
-    const avgCpu = Number(d.fields?.avgCpu ?? 0)
-    const maxCpu = Number(d.fields?.maxCpu ?? 0)
-    const minCpu = Number(d.fields?.minCpu ?? 0)
-    const avgRam = Number(d.fields?.avgRam ?? 0)
-    const maxRam = Number(d.fields?.maxRam ?? 0)
-    const minRam = Number(d.fields?.minRam ?? 0)
-    const avgPing = Number(d.fields?.avgPing ?? 0)
-    const maxPing = Number(d.fields?.maxPing ?? 0)
-    const disk = Number(d.fields?.storageSpace ?? 0)
+export async function GET(request: NextRequest) {
+  try {
+    // Rate limit: 10 requests per minute per user
+    const headers = limiter.checkNext(request, 10)
 
-    return {
-      ts,
-      avgCpu,
-      maxCpu,
-      minCpu,
-      avgRam,
-      maxRam,
-      minRam,
-      disk,
-      avgPing,
-      maxPing
-    }
-  })
-  return NextResponse.json(result)
+    const url = new URL(request.url)
+    const limit = Math.min(parseInt(url.searchParams.get("limit") || "30", 10), 100) // max 100
+    const client = await getClient()
+    const db = client.db("Metrics")
+    const coll = db.collection("hardwareDay")
+    const docs = await coll.find({"metadata.hostname": "heweyDeb"}).sort({ timestamp: -1 }).limit(limit).toArray()
+
+    const result = docs.map((d: any) => {
+      const ts = d.timestamp
+      const avgCpu = Number(d.fields?.avgCpu ?? 0)
+      const maxCpu = Number(d.fields?.maxCpu ?? 0)
+      const minCpu = Number(d.fields?.minCpu ?? 0)
+      const avgRam = Number(d.fields?.avgRam ?? 0)
+      const maxRam = Number(d.fields?.maxRam ?? 0)
+      const minRam = Number(d.fields?.minRam ?? 0)
+      const avgPing = Number(d.fields?.avgPing ?? 0)
+      const maxPing = Number(d.fields?.maxPing ?? 0)
+      const disk = Number(d.fields?.storageSpace ?? 0)
+
+      return {
+        ts,
+        avgCpu,
+        maxCpu,
+        minCpu,
+        avgRam,
+        maxRam,
+        minRam,
+        disk,
+        avgPing,
+        maxPing
+      }
+    })
+    return NextResponse.json(result, { headers })
+  } catch {
+    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 })
+  }
 }

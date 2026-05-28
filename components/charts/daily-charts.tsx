@@ -1,6 +1,8 @@
+
 "use client"
 import { useEffect, useState } from "react"
 import LineChartClient from "./multiLineChart"
+import TooMany429 from "@/components/shared/errors/tooMany429"
 
 export const description = "A multiple line chart for daily data"
 
@@ -17,14 +19,23 @@ type DailyData = {
   ping: MetricPoint[];
   };
 
+
 export function DailyCharts() {
   const [chartData, setChartData] = useState<DailyData | null>(null)
+  const [rateLimitError, setRateLimitError] = useState(false)
 
   useEffect(() => {
     const fetchData = () => {
       fetch("/api/charts/daily?limit=30")
         .then(res => res.json())
         .then((data) => {
+          if (data && typeof data === "object" && data.error === "Rate limit exceeded") {
+            setRateLimitError(true)
+            setChartData(null)
+            return
+          }
+          setRateLimitError(false)
+          if (!Array.isArray(data)) return
           // Transform the array of objects into arrays for each metric
           const metrics: DailyData = {
             cpu: [],
@@ -45,6 +56,10 @@ export function DailyCharts() {
     const interval = setInterval(fetchData, 60000 * 60 * 24)
     return () => clearInterval(interval)
   }, [])
+
+  if (rateLimitError) {
+    return <TooMany429 />
+  }
 
   if (!chartData) return <div>Loading...</div>
 
