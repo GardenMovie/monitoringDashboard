@@ -19,12 +19,20 @@ type DailyData = {
   ping: MetricPoint[];
   };
 
+let dailyCache: DailyData | null = null
+let dailyCacheUpdatedAt = 0
+const DAILY_CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000
+
 
 export function DailyCharts() {
   const [chartData, setChartData] = useState<DailyData | null>(null)
   const [rateLimitError, setRateLimitError] = useState(false)
 
   useEffect(() => {
+    if (dailyCache) {
+      setChartData(dailyCache)
+    }
+
     const fetchData = () => {
       fetch("/api/charts/daily?limit=30")
         .then(res => res.json())
@@ -49,10 +57,15 @@ export function DailyCharts() {
             metrics.disk.push({ ts: d.ts, avg: d.disk, min: d.minDisk ?? undefined, max: d.maxDisk ?? undefined })
             metrics.ping.push({ ts: d.ts, avg: d.avgPing, min: d.minPing ?? undefined, max: d.maxPing ?? undefined })
           })
+          dailyCache = metrics
+          dailyCacheUpdatedAt = Date.now()
           setChartData(metrics)
         })
     }
-    fetchData()
+    const shouldFetch = !dailyCache || Date.now() - dailyCacheUpdatedAt >= DAILY_CACHE_MAX_AGE_MS
+    if (shouldFetch) {
+      fetchData()
+    }
     const interval = setInterval(fetchData, 60000 * 60 * 24)
     return () => clearInterval(interval)
   }, [])

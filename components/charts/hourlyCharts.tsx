@@ -19,12 +19,20 @@ type HourlyData = {
   ping: MetricPoint[];
 };
 
+let hourlyCache: HourlyData | null = null
+let hourlyCacheUpdatedAt = 0
+const HOURLY_CACHE_MAX_AGE_MS = 60 * 60 * 1000
+
 export function HourlyCharts() {
 
   const [chartData, setChartData] = useState<HourlyData | null>(null)
   const [rateLimitError, setRateLimitError] = useState(false)
 
   useEffect(() => {
+    if (hourlyCache) {
+      setChartData(hourlyCache)
+    }
+
     const fetchData = () => {
       fetch("/api/charts/hourly?limit=24")
         .then(res => res.json())
@@ -49,10 +57,15 @@ export function HourlyCharts() {
             metrics.disk.push({ ts: d.ts, avg: d.disk, min: d.minDisk ?? undefined, max: d.maxDisk ?? undefined })
             metrics.ping.push({ ts: d.ts, avg: d.avgPing, min: d.minPing ?? undefined, max: d.maxPing ?? undefined })
           })
+          hourlyCache = metrics
+          hourlyCacheUpdatedAt = Date.now()
           setChartData(metrics)
         })
     }
-    fetchData()
+    const shouldFetch = !hourlyCache || Date.now() - hourlyCacheUpdatedAt >= HOURLY_CACHE_MAX_AGE_MS
+    if (shouldFetch) {
+      fetchData()
+    }
     const interval = setInterval(fetchData, 60000 * 60)
     return () => clearInterval(interval)
   }, [])

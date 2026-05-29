@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const headers = limiter.checkNext(request, RATE_LIMIT_PER_USER)
 
     const url = new URL(request.url)
-    const limit = Math.min(parseInt(url.searchParams.get("limit") || "30", 10), 100) // max 100
+    const limit = Math.min(parseInt(url.searchParams.get("limit") || "30", 10), 90)
     const client = await getClient()
     const db = client.db("Metrics")
     const coll = db.collection("hardwareDay")

@@ -14,11 +14,19 @@ type MinutelyData = {
   ping: MetricPoint[]
 }
 
+let minutelyCache: MinutelyData | null = null
+let minutelyCacheUpdatedAt = 0
+const CACHE_MAX_AGE_MS = 60 * 1000
+
 export function MinutelyCharts() {
   const [chartData, setChartData] = useState<MinutelyData | null>(null)
   const [rateLimitError, setRateLimitError] = useState(false)
 
   useEffect(() => {
+    if (minutelyCache) {
+      setChartData(minutelyCache)
+    }
+
     const fetchData = () => {
       fetch("/api/charts/minutely?limit=60")
         .then(res => res.json())
@@ -29,10 +37,15 @@ export function MinutelyCharts() {
             return
           }
           setRateLimitError(false)
+          minutelyCache = data
+          minutelyCacheUpdatedAt = Date.now()
           setChartData(data)
         })
     }
-    fetchData()
+    const shouldFetch = !minutelyCache || Date.now() - minutelyCacheUpdatedAt >= CACHE_MAX_AGE_MS
+    if (shouldFetch) {
+      fetchData()
+    }
     const interval = setInterval(fetchData, 60000) // 60,000 ms = 1 minute
     return () => clearInterval(interval)
   }, [])
@@ -46,10 +59,10 @@ export function MinutelyCharts() {
 
   return (
     <>
-      <div className=""><SingleLineChart chartData={chartData.cpu} title="CPU Usage (%)" color="var(--color-lime-500)"/></div>
-      <div className=""><SingleLineChart chartData={chartData.ram} title="RAM Usage (%)" color="var(--color-amber-500)"/></div>
-      <div className=""><SingleLineChart chartData={chartData.disk} title="Disk Usage (%)" color="var(--color-emerald-500)"/></div>
-      <div className=""><SingleLineChart chartData={chartData.ping} title="Ping (ms)" color="var(--color-cyan-500)"/></div>
+      <div className=""><SingleLineChart chartData={chartData.cpu} title="CPU Usage (%)" color="var(--color-lime-500)" /></div>
+      <div className=""><SingleLineChart chartData={chartData.ram} title="RAM Usage (%)" color="var(--color-amber-500)" /></div>
+      <div className=""><SingleLineChart chartData={chartData.disk} title="Disk Usage (%)" color="var(--color-emerald-500)" /></div>
+      <div className=""><SingleLineChart chartData={chartData.ping} title="Ping (ms)" color="var(--color-cyan-500)" /></div>
     </>
   )
 }
